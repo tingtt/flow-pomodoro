@@ -1,0 +1,227 @@
+openapi: 3.0.0
+
+info:
+  description: |
+    You can find out more about Swagger at
+    [http://swagger.io](http://swagger.io) or on
+    [irc.freenode.net, #swagger](http://swagger.io/irc/).
+  version: "2.0.0"
+  title: "flow API: pomodoro"
+  license:
+    name: Apache 2.0
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+
+security:
+  - cookieAuth: []
+
+tags: []
+
+paths:
+  /start:
+    post:
+      requestBody:
+        $ref: "#/components/requestBodies/StartPomodoro"
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PomodoroLog"
+        400:
+          description: Invalid request
+        415:
+          description: Unsupported media type
+        422:
+          description: Unprocessable entity
+        500:
+          description: Internal server error
+
+  /end:
+    post:
+      requestBody:
+        $ref: "#/components/requestBodies/EndPomodoro"
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PomodoroLog"
+        400:
+          description: Invalid request
+        415:
+          description: Unsupported media type
+        422:
+          description: Unprocessable entity
+        500:
+          description: Internal server error
+
+  /:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/project_id"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pomodoro"
+        204:
+          description: No content
+        500:
+          description: Internal server error
+
+  /{date}:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/date"
+        - $ref: "#/components/parameters/range"
+        - $ref: "#/components/parameters/project_id"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pomodoro"
+        204:
+          description: No content
+        500:
+          description: Internal server error
+
+  /aggregate/{date}:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/date"
+        - $ref: "#/components/parameters/range"
+        - $ref: "#/components/parameters/aggregation_unit"
+        - $ref: "#/components/parameters/project_id"
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AggregatedPomodoro"
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: TOKEN
+  schemas:
+    Pomodoro:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        todo_id:
+          type: integer
+        project_id:
+          type: integer
+
+    AggregatedPomodoro:
+      type: array
+      items:
+        type: object
+        properties:
+          time:
+            type: integer
+          project_id:
+            type: integer
+          datetime:
+            type: string
+            format: date-time
+
+    PomodoroLog:
+      type: object
+      properties:
+        datetime:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - start
+            - end
+        todo_id:
+          type: integer
+        project_id:
+          type: integer
+
+    StartPomodoroBody:
+      type: object
+      properties:
+        datetime:
+          type: string
+          format: date-time
+        todo_id:
+          type: integer
+        project_id:
+          type: integer
+
+    EndPomodoroBody:
+      type: object
+      properties:
+        datetime:
+          type: string
+          format: date-time
+        todo_id:
+          type: integer
+        project_id:
+          type: integer
+
+  requestBodies:
+    StartPomodoro:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/StartPomodoroBody"
+
+    EndPomodoro:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/EndPomodoroBody"
+
+  parameters:
+    project_id:
+      name: project_id
+      in: query
+      schema:
+        type: integer
+    date:
+      name: date
+      in: path
+      required: true
+      schema:
+        type: string
+        format: date
+    range:
+      name: range
+      in: query
+      schema:
+        type: integer
+    aggregation_unit:
+      name: aggregation_unit
+      in: query
+      schema:
+        type: string
+        enum:
+          - day
+          - week
+          - month
+          - year
