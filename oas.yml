@@ -27,7 +27,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PomodoroLog"
+                $ref: "#/components/schemas/PomodoroLogStarted"
         400:
           description: Invalid request
         415:
@@ -60,7 +60,11 @@ paths:
   /:
     get:
       parameters:
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/end"
         - $ref: "#/components/parameters/project_id"
+        - $ref: "#/components/parameters/include_sub_project"
+        - $ref: "#/components/parameters/todo_id"
       responses:
         200:
           description: Success
@@ -69,48 +73,31 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Pomodoro"
-        204:
-          description: No content
+                  $ref: "#/components/schemas/PomodoroLog"
+        400:
+          description: Invalid request
         500:
           description: Internal server error
 
-  /{date}:
+  /aggregated:
     get:
       parameters:
-        - $ref: "#/components/parameters/date"
-        - $ref: "#/components/parameters/range"
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/end"
         - $ref: "#/components/parameters/project_id"
+        - $ref: "#/components/parameters/include_sub_project"
+        - $ref: "#/components/parameters/aggregation_range"
       responses:
         200:
           description: Success
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Pomodoro"
-        204:
-          description: No content
+                $ref: "#/components/schemas/AggregatedPomodoro"
+        400:
+          description: Invalid request
         500:
           description: Internal server error
-
-  /aggregate/{date}:
-    get:
-      parameters:
-        - $ref: "#/components/parameters/date"
-        - $ref: "#/components/parameters/range"
-        - $ref: "#/components/parameters/aggregation_unit"
-        - $ref: "#/components/parameters/project_id"
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AggregatedPomodoro"
 
 components:
   securitySchemes:
@@ -119,9 +106,52 @@ components:
       in: cookie
       name: TOKEN
   schemas:
-    Pomodoro:
+    AggregatedPomodoro:
+      type: array
+      items:
+        type: object
+        properties:
+          time:
+            type: integer
+          project_id:
+            type: integer
+
+    AggregatedPomodoroWithDatetime:
       type: object
       properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              time:
+                type: integer
+              project_id:
+                type: integer
+        datetime:
+          type: string
+          format: date-time
+
+    PomodoroLogStarted:
+      type: object
+      properties:
+        id:
+          type: integer
+        start:
+          type: string
+          format: date-time
+        todo_id:
+          type: integer
+        project_id:
+          type: integer
+        parent_project_id:
+          type: integer
+
+    PomodoroLog:
+      type: object
+      properties:
+        id:
+          type: integer
         start:
           type: string
           format: date-time
@@ -132,57 +162,40 @@ components:
           type: integer
         project_id:
           type: integer
-
-    AggregatedPomodoro:
-      type: array
-      items:
-        type: object
-        properties:
-          time:
-            type: integer
-          project_id:
-            type: integer
-          datetime:
-            type: string
-            format: date-time
-
-    PomodoroLog:
-      type: object
-      properties:
-        datetime:
-          type: string
-          format: date-time
-        type:
-          type: string
-          enum:
-            - start
-            - end
-        todo_id:
+        parent_project_id:
           type: integer
-        project_id:
-          type: integer
+      required:
+        - start
+        - todo_id
+        - project_id
 
     StartPomodoroBody:
       type: object
       properties:
-        datetime:
+        start:
           type: string
           format: date-time
         todo_id:
           type: integer
         project_id:
           type: integer
+        parent_project_id:
+          type: integer
+      required:
+        - start
+        - todo_id
 
     EndPomodoroBody:
       type: object
       properties:
-        datetime:
+        end:
           type: string
           format: date-time
         todo_id:
           type: integer
-        project_id:
-          type: integer
+      required:
+        - end
+        - todo_id
 
   requestBodies:
     StartPomodoro:
@@ -198,29 +211,49 @@ components:
             $ref: "#/components/schemas/EndPomodoroBody"
 
   parameters:
-    project_id:
-      name: project_id
-      in: query
-      schema:
-        type: integer
-    date:
+    path_date:
       name: date
       in: path
       required: true
       schema:
         type: string
         format: date
-    range:
-      name: range
+    start:
+      name: start
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
+    end:
+      name: end
+      in: query
+      required: true
+      schema:
+        type: string
+        format: date
+    project_id:
+      name: project_id
       in: query
       schema:
         type: integer
-    aggregation_unit:
-      name: aggregation_unit
+    include_sub_project:
+      name: include_sub_project
+      in: query
+      schema:
+        type: boolean
+    todo_id:
+      name: todo_id
+      in: query
+      schema:
+        type: integer
+    aggregation_range:
+      name: aggregation_range
       in: query
       schema:
         type: string
         enum:
+          - hour
           - day
           - week
           - month
