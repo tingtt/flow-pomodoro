@@ -12,11 +12,11 @@ type PostEnd struct {
 
 func End(userId uint64, post PostEnd) (p Pomodoro, notStarted bool, err error) {
 	// Check started
-	old, notFound, err := GetLast(userId)
+	p, notFound, err := GetLast(userId)
 	if err != nil {
 		return
 	}
-	if !notFound && old.End != nil && old.TodoId == post.TodoId {
+	if notFound || p.End != nil || p.TodoId != post.TodoId {
 		// Not started
 		notStarted = true
 		return
@@ -38,5 +38,6 @@ func End(userId uint64, post PostEnd) (p Pomodoro, notStarted bool, err error) {
 		return
 	}
 
+	p.End = &post.End
 	return
 }
