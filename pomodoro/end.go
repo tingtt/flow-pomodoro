@@ -33,7 +33,7 @@ func End(userId uint64, post PostEnd) (p Pomodoro, notStarted bool, err error) {
 		return
 	}
 	defer stmtIns.Close()
-	_, err = stmtIns.Exec(post.End, userId, post.TodoId)
+	_, err = stmtIns.Exec(post.End.UTC(), userId, post.TodoId)
 	if err != nil {
 		return
 	}

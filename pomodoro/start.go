@@ -42,7 +42,7 @@ func Start(userId uint64, post PostStart, force bool) (p Pomodoro, notEnded bool
 		return
 	}
 	defer stmtIns.Close()
-	result, err := stmtIns.Exec(userId, post.Start, post.TodoId, post.ProjectId, post.ParentProjectId)
+	result, err := stmtIns.Exec(userId, post.Start.UTC(), post.TodoId, post.ProjectId, post.ParentProjectId)
 	if err != nil {
 		return
 	}
