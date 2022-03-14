@@ -26,21 +26,29 @@ func GetList(userId uint64, start time.Time, end time.Time) (pomodoros []Pomodor
 
 	for rows.Next() {
 		var (
-			id            uint64
-			start         time.Time
-			end           sql.NullTime
-			todoId        uint64
-			projectId     uint64
-			rootProjectId uint64
+			id              uint64
+			start           time.Time
+			end             sql.NullTime
+			todoId          uint64
+			projectId       sql.NullInt64
+			parentProjectId sql.NullInt64
 		)
-		err = rows.Scan(&id, &start, &end, &todoId, &projectId, &rootProjectId)
+		err = rows.Scan(&id, &start, &end, &todoId, &projectId, &parentProjectId)
 		if err != nil {
 			return
 		}
 
-		p := Pomodoro{Id: id, Start: start, TodoId: todoId, ProjectId: projectId, ParentProjectId: rootProjectId}
+		p := Pomodoro{Id: id, Start: start, TodoId: todoId}
 		if end.Valid {
 			p.End = &end.Time
+		}
+		if projectId.Valid {
+			projectIdTmp := uint64(projectId.Int64)
+			p.ProjectId = &projectIdTmp
+		}
+		if parentProjectId.Valid {
+			parentProjectIdTmp := uint64(parentProjectId.Int64)
+			p.ParentProjectId = &parentProjectIdTmp
 		}
 
 		pomodoros = append(pomodoros, p)
@@ -69,20 +77,28 @@ func GetListTodo(userId uint64, start time.Time, end time.Time, todoId uint64) (
 
 	for rows.Next() {
 		var (
-			id            uint64
-			start         time.Time
-			end           sql.NullTime
-			projectId     uint64
-			rootProjectId uint64
+			id              uint64
+			start           time.Time
+			end             sql.NullTime
+			projectId       sql.NullInt64
+			parentProjectId sql.NullInt64
 		)
-		err = rows.Scan(&id, &start, &end, &projectId, &rootProjectId)
+		err = rows.Scan(&id, &start, &end, &projectId, &parentProjectId)
 		if err != nil {
 			return
 		}
 
-		p := Pomodoro{Id: id, Start: start, TodoId: todoId, ProjectId: projectId, ParentProjectId: rootProjectId}
+		p := Pomodoro{Id: id, Start: start, TodoId: todoId}
 		if end.Valid {
 			p.End = &end.Time
+		}
+		if projectId.Valid {
+			projectIdTmp := uint64(projectId.Int64)
+			p.ProjectId = &projectIdTmp
+		}
+		if parentProjectId.Valid {
+			parentProjectIdTmp := uint64(parentProjectId.Int64)
+			p.ParentProjectId = &parentProjectIdTmp
 		}
 
 		pomodoros = append(pomodoros, p)
@@ -124,21 +140,29 @@ func GetListProjectId(userId uint64, start time.Time, end time.Time, projectId u
 
 	for rows.Next() {
 		var (
-			id            uint64
-			start         time.Time
-			end           sql.NullTime
-			todoId        uint64
-			projectId1    uint64
-			rootProjectId uint64
+			id              uint64
+			start           time.Time
+			end             sql.NullTime
+			todoId          uint64
+			projectId1      sql.NullInt64
+			parentProjectId sql.NullInt64
 		)
-		err = rows.Scan(&id, &start, &end, &todoId, &projectId1, &rootProjectId)
+		err = rows.Scan(&id, &start, &end, &todoId, &projectId1, &parentProjectId)
 		if err != nil {
 			return
 		}
 
-		p := Pomodoro{Id: id, Start: start, TodoId: todoId, ProjectId: projectId1, ParentProjectId: rootProjectId}
+		p := Pomodoro{Id: id, Start: start, TodoId: todoId}
 		if end.Valid {
 			p.End = &end.Time
+		}
+		if projectId1.Valid {
+			projectIdTmp := uint64(projectId1.Int64)
+			p.ProjectId = &projectIdTmp
+		}
+		if parentProjectId.Valid {
+			parentProjectIdTmp := uint64(parentProjectId.Int64)
+			p.ParentProjectId = &parentProjectIdTmp
 		}
 
 		pomodoros = append(pomodoros, p)

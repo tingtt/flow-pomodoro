@@ -8,8 +8,8 @@ type AggregatedPomodoro struct {
 }
 
 type Time struct {
-	Time      uint   `json:"time"`
-	ProjectId uint64 `json:"project_id"`
+	Time      uint    `json:"time"`
+	ProjectId *uint64 `json:"project_id,omitempty"`
 }
 
 func GetAggregated(userId uint64, start time.Time, end time.Time, projectId *uint64, includeSubProject bool) (a AggregatedPomodoro, err error) {
@@ -28,28 +28,34 @@ func GetAggregated(userId uint64, start time.Time, end time.Time, projectId *uin
 	}
 
 	var projects map[uint64]uint = map[uint64]uint{}
+	var othersTime uint = 0
 
-	for _, pomodoro := range pomodoros {
-		if pomodoro.End == nil {
+	for _, pomo := range pomodoros {
+		if pomo.End == nil {
 			continue
 		}
 
 		// Trim overdue
-		if pomodoro.Start.Before(start) {
-			pomodoro.Start = start
+		if pomo.Start.Before(start) {
+			pomo.Start = start
 		}
-		if pomodoro.End.After(end) {
-			pomodoro.End = &end
+		if pomo.End.After(end) {
+			pomo.End = &end
 		}
 
-		projects[pomodoro.ProjectId] += uint(pomodoro.End.Sub(pomodoro.Start).Seconds())
+		if pomo.ProjectId != nil {
+			projects[*pomo.ProjectId] += uint(pomo.End.Sub(pomo.Start).Seconds())
+		} else {
+			othersTime += uint(pomo.End.Sub(pomo.Start).Seconds())
+		}
 	}
 
 	var timeAry []Time
 
 	for k, v := range projects {
-		timeAry = append(timeAry, Time{v, k})
+		timeAry = append(timeAry, Time{v, &k})
 	}
+	timeAry = append(timeAry, Time{Time: othersTime})
 
 	a.BaseTime = start
 	a.Data = timeAry

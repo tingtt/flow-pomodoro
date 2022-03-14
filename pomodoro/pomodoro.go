@@ -9,6 +9,6 @@ type Pomodoro struct {
 	Start           time.Time  `json:"start"`
 	End             *time.Time `json:"end,omitempty"`
 	TodoId          uint64     `json:"todo_id"`
-	ProjectId       uint64     `json:"project_id"`
-	ParentProjectId uint64     `json:"parent_project_id"`
+	ProjectId       *uint64    `json:"project_id,omitempty"`
+	ParentProjectId *uint64    `json:"parent_project_id,omitempty"`
 }

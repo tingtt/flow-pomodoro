@@ -8,8 +8,8 @@ import (
 type PostStart struct {
 	Start           time.Time `json:"start" validate:"required"`
 	TodoId          uint64    `query:"todo_id" json:"todo_id" validate:"required"`
-	ProjectId       uint64    `query:"project_id" json:"project_id" validate:"required"`
-	ParentProjectId uint64    `query:"parent_project_id" json:"parent_project_id" validate:"required"`
+	ProjectId       *uint64   `query:"project_id" json:"project_id" validate:"omitempty"`
+	ParentProjectId *uint64   `query:"parent_project_id" json:"parent_project_id" validate:"omitempty"`
 }
 
 func Start(userId uint64, post PostStart, force bool) (p Pomodoro, notEnded bool, err error) {
