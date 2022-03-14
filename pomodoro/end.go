@@ -28,12 +28,12 @@ func End(userId uint64, post PostEnd) (p Pomodoro, notStarted bool, err error) {
 		return
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("UPDATE pomodoros SET end  = ? WHERE user_id = ? AND todo_id = ?")
+	stmtIns, err := db.Prepare("UPDATE pomodoros SET end  = ? WHERE user_id = ? AND id = ?")
 	if err != nil {
 		return
 	}
 	defer stmtIns.Close()
-	_, err = stmtIns.Exec(post.End.UTC(), userId, post.TodoId)
+	_, err = stmtIns.Exec(post.End.UTC(), userId, p.Id)
 	if err != nil {
 		return
 	}
