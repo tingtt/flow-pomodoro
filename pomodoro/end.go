@@ -10,7 +10,7 @@ type PostEnd struct {
 	TodoId uint64    `query:"todo_id" json:"todo_id" validate:"required"`
 }
 
-func End(userId uint64, post PostEnd) (p Pomodoro, notStarted bool, err error) {
+func End(userId uint64, post PostEnd) (p Pomodoro, notStarted bool, invalidTime bool, err error) {
 	// Check started
 	p, notFound, err := GetLast(userId)
 	if err != nil {
@@ -19,6 +19,10 @@ func End(userId uint64, post PostEnd) (p Pomodoro, notStarted bool, err error) {
 	if notFound || p.End != nil || p.TodoId != post.TodoId {
 		// Not started
 		notStarted = true
+		return
+	}
+	if post.End.Before(p.Start) {
+		invalidTime = true
 		return
 	}
 

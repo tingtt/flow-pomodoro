@@ -25,9 +25,16 @@ func Start(userId uint64, post PostStart, force bool) (p Pomodoro, notEnded bool
 			return
 		}
 		// End last pomodoro
-		_, _, err = End(userId, PostEnd{End: post.Start, TodoId: old.TodoId})
+		var invalidTimeToEnd bool
+		_, _, invalidTimeToEnd, err = End(userId, PostEnd{End: post.Start, TodoId: old.TodoId})
 		if err != nil {
 			return
+		}
+		if invalidTimeToEnd {
+			_, err = Delete(userId, old.Id)
+			if err != nil {
+				return
+			}
 		}
 	}
 	if old.End.After(post.Start) {
