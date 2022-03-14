@@ -11,13 +11,13 @@ import (
 )
 
 type GetAggregatedQueryParam struct {
-	ProjectId          *uint64   `query:"project_id" validate:"omitempty"`
-	IncludeSubProjects bool      `query:"include_sub_project" validate:"omitempty"`
-	Start              time.Time `query:"start" validate:"required"`
-	End                time.Time `query:"end" validate:"required"`
+	ProjectId          *uint64 `query:"project_id" validate:"omitempty"`
+	IncludeSubProjects bool    `query:"include_sub_project" validate:"omitempty"`
+	Start              string  `query:"start" validate:"required,datetime"`
+	End                string  `query:"end" validate:"required,datetime"`
 }
 
-func GetAggregated(c echo.Context) error {
+func getAggregated(c echo.Context) error {
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
 	userId, err := jwt.CheckToken(*jwtIssuer, u)
@@ -40,7 +40,9 @@ func GetAggregated(c echo.Context) error {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
-	if q.Start.After(q.End) {
+	qStart, _ := datetimeStrConv(q.Start)
+	qEnd, _ := datetimeStrConv(q.End)
+	if qStart.After(qEnd) {
 		// 422: Unprocessable entity
 		c.Logger().Debug("`start` must before `end`")
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "`start` must before `end`"}, "	")

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo"
@@ -49,7 +50,32 @@ type CustomValidator struct {
 	validator *validator.Validate
 }
 
+func DatetimeStrValidation(fl validator.FieldLevel) bool {
+	_, err1 := time.Parse("2006-1-2T15:4:5", fl.Field().String())
+	_, err2 := strconv.ParseUint(fl.Field().String(), 10, 64)
+	fmt.Printf("err1: %v\n", err1)
+	fmt.Printf("err2: %v\n", err2)
+	return err1 == nil || err2 == nil
+}
+
+func datetimeStrConv(str string) (t time.Time, err error) {
+	// y-m-dTh:m:s or unix timestamp
+	t, err1 := time.Parse("2006-1-2T15:4:5", str)
+	u, err2 := strconv.ParseInt(str, 10, 64)
+	if err1 == nil {
+		return
+	}
+	if err2 == nil {
+		t = time.Unix(u, 0)
+		return
+	}
+	err = fmt.Errorf("\"%s\" is not a unix timestamp or string format \"2006-1-2T15:4:5\"", str)
+	return
+}
+
 func (cv *CustomValidator) Validate(i interface{}) error {
+	cv.validator.RegisterValidation("datetime", DatetimeStrValidation)
+
 	if err := cv.validator.Struct(i); err != nil {
 		// Optionally, you could return the error to give each route more control over the status code
 		return err
@@ -75,6 +101,7 @@ func main() {
 
 	// Restricted routes
 	e.GET("/", get)
+	e.GET("/aggregated", getAggregated)
 	e.POST("/start", postStart)
 	e.POST("/end", postEnd)
 	e.DELETE(":id", delete)

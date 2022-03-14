@@ -4,18 +4,17 @@ import (
 	"flow-pomodoros/jwt"
 	"flow-pomodoros/pomodoro"
 	"net/http"
-	"time"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
 type GetQueryParam struct {
-	ProjectId          *uint64   `query:"project_id" validate:"omitempty"`
-	IncludeSubProjects bool      `query:"include_sub_project" validate:"omitempty"`
-	TodoId             *uint64   `query:"todo_id" validate:"omitempty"`
-	Start              time.Time `query:"start" validate:"required"`
-	End                time.Time `query:"end" validate:"required"`
+	ProjectId          *uint64 `query:"project_id" validate:"omitempty"`
+	IncludeSubProjects bool    `query:"include_sub_project" validate:"omitempty"`
+	TodoId             *uint64 `query:"todo_id" validate:"omitempty"`
+	Start              string  `query:"start" validate:"required,datetime"`
+	End                string  `query:"end" validate:"required,datetime"`
 }
 
 func get(c echo.Context) error {
@@ -46,7 +45,9 @@ func get(c echo.Context) error {
 		c.Logger().Debug("`project_id` and `todo_id` cannnot query at the same time")
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "`project_id` and `todo_id` cannnot query at the same time"}, "	")
 	}
-	if q.Start.After(q.End) {
+	start, _ := datetimeStrConv(q.Start)
+	end, _ := datetimeStrConv(q.End)
+	if start.After(end) {
 		// 422: Unprocessable entity
 		c.Logger().Debug("`start` must before `end`")
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "`start` must before `end`"}, "	")
@@ -55,11 +56,11 @@ func get(c echo.Context) error {
 	// Get pomodoros
 	var pomodoros []pomodoro.Pomodoro
 	if q.ProjectId != nil {
-		pomodoros, err = pomodoro.GetListProjectId(userId, q.Start, q.End, *q.ProjectId, q.IncludeSubProjects)
+		pomodoros, err = pomodoro.GetListProjectId(userId, start, end, *q.ProjectId, q.IncludeSubProjects)
 	} else if q.TodoId != nil {
-		pomodoros, err = pomodoro.GetListTodo(userId, q.Start, q.End, *q.TodoId)
+		pomodoros, err = pomodoro.GetListTodo(userId, start, end, *q.TodoId)
 	} else {
-		pomodoros, err = pomodoro.GetList(userId, q.Start, q.End)
+		pomodoros, err = pomodoro.GetList(userId, start, end)
 	}
 	if err != nil {
 		// 500: Internal server error
