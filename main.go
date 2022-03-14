@@ -53,8 +53,6 @@ type CustomValidator struct {
 func DatetimeStrValidation(fl validator.FieldLevel) bool {
 	_, err1 := time.Parse("2006-1-2T15:4:5", fl.Field().String())
 	_, err2 := strconv.ParseUint(fl.Field().String(), 10, 64)
-	fmt.Printf("err1: %v\n", err1)
-	fmt.Printf("err2: %v\n", err2)
 	return err1 == nil || err2 == nil
 }
 
