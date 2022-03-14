@@ -44,7 +44,7 @@ func postStart(c echo.Context) error {
 
 	// TODO: Check project id
 
-	p, notEnded, err := pomodoro.Start(userId, *post, false)
+	p, notEnded, invalidTime, err := pomodoro.Start(userId, *post, false)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
@@ -54,6 +54,11 @@ func postStart(c echo.Context) error {
 		// 409: Conflict
 		c.Logger().Debug("pomodoro not ended")
 		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "pomodoro not ended"}, "	")
+	}
+	if invalidTime {
+		// 409: Conflict
+		c.Logger().Debug("start time must not before time last pomodoro ended")
+		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "start time must not before time last pomodoro ended"}, "	")
 	}
 
 	// 200: Success
