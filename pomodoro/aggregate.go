@@ -50,7 +50,7 @@ func GetAggregated(userId uint64, start time.Time, end time.Time, projectId *uin
 		}
 	}
 
-	var timeAry []Time
+	var timeAry = []Time{}
 
 	for k, v := range projects {
 		timeAry = append(timeAry, Time{v, &k})
