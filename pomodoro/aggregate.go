@@ -55,7 +55,9 @@ func GetAggregated(userId uint64, start time.Time, end time.Time, projectId *uin
 	for k, v := range projects {
 		timeAry = append(timeAry, Time{v, &k})
 	}
-	timeAry = append(timeAry, Time{Time: othersTime})
+	if othersTime != 0 {
+		timeAry = append(timeAry, Time{Time: othersTime})
+	}
 
 	a.BaseTime = start
 	a.Data = timeAry
