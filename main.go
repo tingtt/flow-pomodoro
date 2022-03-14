@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
-	"flow-pomodoros/jwt"
-	"flow-pomodoros/mysql"
+	"flow-pomodoro/jwt"
+	"flow-pomodoro/mysql"
 	"fmt"
 	"os"
 	"strconv"
@@ -39,8 +39,8 @@ var (
 	gzipLevel   = flag.Int("gzip-level", getIntEnv("GZIP_LEVEL", 6), "Gzip compression level")
 	mysqlHost   = flag.String("mysql-host", getEnv("MYSQL_HOST", "db"), "MySQL host")
 	mysqlPort   = flag.Int("mysql-port", getIntEnv("MYSQL_PORT", 3306), "MySQL port")
-	mysqlDB     = flag.String("mysql-database", getEnv("MYSQL_DATABASE", "flow-pomodoros"), "MySQL database")
-	mysqlUser   = flag.String("mysql-user", getEnv("MYSQL_USER", "flow-pomodoros"), "MySQL user")
+	mysqlDB     = flag.String("mysql-database", getEnv("MYSQL_DATABASE", "flow-pomodoro"), "MySQL database")
+	mysqlUser   = flag.String("mysql-user", getEnv("MYSQL_USER", "flow-pomodoro"), "MySQL user")
 	mysqlPasswd = flag.String("mysql-password", getEnv("MYSQL_PASSWORD", ""), "MySQL password")
 	jwtIssuer   = flag.String("jwt-issuer", getEnv("JWT_ISSUER", "flow-users"), "JWT issuer")
 	jwtSecret   = flag.String("jwt-secret", getEnv("JWT_SECRET", ""), "JWT secret")

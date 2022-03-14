@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
-	"flow-pomodoros/jwt"
-	"flow-pomodoros/pomodoro"
+	"flow-pomodoro/jwt"
+	"flow-pomodoro/pomodoro"
 	"net/http"
 	"strconv"
 

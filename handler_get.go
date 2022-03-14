@@ -1,8 +1,8 @@
 package main
 
 import (
-	"flow-pomodoros/jwt"
-	"flow-pomodoros/pomodoro"
+	"flow-pomodoro/jwt"
+	"flow-pomodoro/pomodoro"
 	"net/http"
 
 	jwtGo "github.com/dgrijalva/jwt-go"

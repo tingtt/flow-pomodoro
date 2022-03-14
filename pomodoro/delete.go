@@ -1,6 +1,6 @@
 package pomodoro
 
-import "flow-pomodoros/mysql"
+import "flow-pomodoro/mysql"
 
 func Delete(userId uint64, id uint64) (notFound bool, err error) {
 	db, err := mysql.Open()
@@ -8,7 +8,7 @@ func Delete(userId uint64, id uint64) (notFound bool, err error) {
 		return false, err
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("DELETE FROM pomodoros WHERE user_id = ? AND id = ?")
+	stmtIns, err := db.Prepare("DELETE FROM logs WHERE user_id = ? AND id = ?")
 	if err != nil {
 		return false, err
 	}

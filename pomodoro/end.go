@@ -1,7 +1,7 @@
 package pomodoro
 
 import (
-	"flow-pomodoros/mysql"
+	"flow-pomodoro/mysql"
 	"time"
 )
 
@@ -32,7 +32,7 @@ func End(userId uint64, post PostEnd) (p Pomodoro, notStarted bool, invalidTime 
 		return
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("UPDATE pomodoros SET end  = ? WHERE user_id = ? AND id = ?")
+	stmtIns, err := db.Prepare("UPDATE logs SET end  = ? WHERE user_id = ? AND id = ?")
 	if err != nil {
 		return
 	}

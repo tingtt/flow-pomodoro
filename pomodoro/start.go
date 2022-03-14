@@ -1,7 +1,7 @@
 package pomodoro
 
 import (
-	"flow-pomodoros/mysql"
+	"flow-pomodoro/mysql"
 	"time"
 )
 
@@ -49,7 +49,7 @@ func Start(userId uint64, post PostStart, force bool) (p Pomodoro, notEnded bool
 		return
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("INSERT INTO pomodoros (user_id, start, todo_id, project_id, parent_project_id) VALUES (?, ?, ?, ?, ?)")
+	stmtIns, err := db.Prepare("INSERT INTO logs (user_id, start, todo_id, project_id, parent_project_id) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		return
 	}

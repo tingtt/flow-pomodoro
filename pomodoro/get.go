@@ -2,7 +2,7 @@ package pomodoro
 
 import (
 	"database/sql"
-	"flow-pomodoros/mysql"
+	"flow-pomodoro/mysql"
 	"time"
 )
 
@@ -13,7 +13,7 @@ func Get(userId uint64, id uint64) (p Pomodoro, notFound bool, err error) {
 	}
 	defer db.Close()
 
-	stmtOut, err := db.Prepare("SELECT start, end, todo_id, project_id, parent_project_id FROM pomodoros WHERE user_id = ? AND id = ?")
+	stmtOut, err := db.Prepare("SELECT start, end, todo_id, project_id, parent_project_id FROM logs WHERE user_id = ? AND id = ?")
 	if err != nil {
 		return
 	}

@@ -3,19 +3,19 @@ START TRANSACTION;
 SET time_zone = "+00:00";
 
 --
--- Database: `flow-pomodoros`
+-- Database: `flow-pomodoro`
 --
 
-CREATE DATABASE IF NOT EXISTS `flow-pomodoros` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `flow-pomodoros`;
+CREATE DATABASE IF NOT EXISTS `flow-pomodoro` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `flow-pomodoro`;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pomodoros`
+-- Table structure for table `logs`
 --
 
-CREATE TABLE `pomodoros` (
+CREATE TABLE `logs` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT UNSIGNED NOT NULL,
   `start` DATETIME NOT NULL,

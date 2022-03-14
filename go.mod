@@ -1,4 +1,4 @@
-module flow-pomodoros
+module flow-pomodoro
 
 go 1.17
 

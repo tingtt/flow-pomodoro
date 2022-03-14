@@ -2,7 +2,7 @@ package pomodoro
 
 import (
 	"database/sql"
-	"flow-pomodoros/mysql"
+	"flow-pomodoro/mysql"
 	"time"
 )
 
@@ -13,7 +13,7 @@ func GetList(userId uint64, start time.Time, end time.Time) (pomodoros []Pomodor
 	}
 	defer db.Close()
 
-	stmtOut, err := db.Prepare("SELECT id, start, end, todo_id, project_id, parent_project_id FROM pomodoros WHERE user_id = ? AND (? BETWEEN start AND end OR ? BETWEEN start AND end OR start BETWEEN ? AND ?)")
+	stmtOut, err := db.Prepare("SELECT id, start, end, todo_id, project_id, parent_project_id FROM logs WHERE user_id = ? AND (? BETWEEN start AND end OR ? BETWEEN start AND end OR start BETWEEN ? AND ?)")
 	if err != nil {
 		return
 	}
@@ -64,7 +64,7 @@ func GetListTodo(userId uint64, start time.Time, end time.Time, todoId uint64) (
 	}
 	defer db.Close()
 
-	stmtOut, err := db.Prepare("SELECT id, start, end, project_id, parent_project_id FROM pomodoros WHERE user_id = ? AND todo_id = ? AND (? BETWEEN start AND end OR ? BETWEEN start AND end OR start BETWEEN ? AND ?)")
+	stmtOut, err := db.Prepare("SELECT id, start, end, project_id, parent_project_id FROM logs WHERE user_id = ? AND todo_id = ? AND (? BETWEEN start AND end OR ? BETWEEN start AND end OR start BETWEEN ? AND ?)")
 	if err != nil {
 		return
 	}
@@ -109,7 +109,7 @@ func GetListTodo(userId uint64, start time.Time, end time.Time, todoId uint64) (
 
 func GetListProjectId(userId uint64, start time.Time, end time.Time, projectId uint64, includeSubProject bool) (pomodoros []Pomodoro, err error) {
 	// Generate query
-	queryStr := "SELECT id, start, end, todo_id, project_id, parent_project_id FROM pomodoros WHERE user_id = ? AND (? BETWEEN start AND end OR ? BETWEEN start AND end OR start BETWEEN ? AND ?)"
+	queryStr := "SELECT id, start, end, todo_id, project_id, parent_project_id FROM logs WHERE user_id = ? AND (? BETWEEN start AND end OR ? BETWEEN start AND end OR start BETWEEN ? AND ?)"
 	if includeSubProject {
 		queryStr += " AND (project_id = ? OR parent_project_id = ?)"
 	} else {
