@@ -8,7 +8,7 @@ type AggregatedPomodoro struct {
 }
 
 type Time struct {
-	Time      uint    `json:"time"`
+	Time      uint64  `json:"time"`
 	ProjectId *uint64 `json:"project_id,omitempty"`
 }
 
@@ -27,8 +27,8 @@ func GetAggregated(userId uint64, start time.Time, end time.Time, projectId *uin
 		}
 	}
 
-	var projects map[uint64]uint = map[uint64]uint{}
-	var othersTime uint = 0
+	var projects map[uint64]uint64 = map[uint64]uint64{}
+	var othersTime uint64 = 0
 
 	for _, pomo := range pomodoros {
 		if pomo.End == nil {
@@ -44,9 +44,9 @@ func GetAggregated(userId uint64, start time.Time, end time.Time, projectId *uin
 		}
 
 		if pomo.ProjectId != nil {
-			projects[*pomo.ProjectId] += uint(pomo.End.Sub(pomo.Start).Seconds())
+			projects[*pomo.ProjectId] += uint64(pomo.End.Sub(pomo.Start).Seconds())
 		} else {
-			othersTime += uint(pomo.End.Sub(pomo.Start).Seconds())
+			othersTime += uint64(pomo.End.Sub(pomo.Start).Seconds())
 		}
 	}
 
