@@ -12,19 +12,22 @@ type Time struct {
 	ProjectId *uint64 `json:"project_id,omitempty"`
 }
 
-func GetAggregated(userId uint64, start time.Time, end time.Time, projectId *uint64, includeSubProject bool) (a AggregatedPomodoro, err error) {
-	var pomodoros []Pomodoro
+type GetAggregatedQuery struct {
+	Start              *time.Time `query:"start" validate:"required"`
+	End                *time.Time `query:"end" validate:"required"`
+	ProjectId          *uint64    `query:"project_id" validate:"omitempty"`
+	IncludeSubProjects bool       `query:"include_sub_project" validate:"omitempty"`
+}
 
-	if projectId != nil {
-		pomodoros, err = GetListProjectId(userId, start, end, *projectId, includeSubProject)
-		if err != nil {
-			return
-		}
-	} else {
-		pomodoros, err = GetList(userId, start, end)
-		if err != nil {
-			return
-		}
+func GetAggregated(userId uint64, q GetAggregatedQuery) (a AggregatedPomodoro, err error) {
+	startTmp := q.Start.UTC()
+	q.Start = &startTmp
+	endTmp := q.End.UTC()
+	q.End = &endTmp
+
+	pomodoros, err := GetList(userId, GetListQuery{Start: q.Start, End: q.End, ProjectId: q.ProjectId, IncludeSubProjects: q.IncludeSubProjects})
+	if err != nil {
+		return
 	}
 
 	var projects map[uint64]uint64 = map[uint64]uint64{}
@@ -36,11 +39,11 @@ func GetAggregated(userId uint64, start time.Time, end time.Time, projectId *uin
 		}
 
 		// Trim overdue
-		if pomo.Start.Before(start) {
-			pomo.Start = start
+		if pomo.Start.Before(*q.Start) {
+			pomo.Start = *q.Start
 		}
-		if pomo.End.After(end) {
-			pomo.End = &end
+		if pomo.End.After(*q.End) {
+			pomo.End = q.End
 		}
 
 		if pomo.ProjectId != nil {
@@ -59,7 +62,7 @@ func GetAggregated(userId uint64, start time.Time, end time.Time, projectId *uin
 		timeAry = append(timeAry, Time{Time: othersTime})
 	}
 
-	a.BaseTime = start
+	a.BaseTime = *q.Start
 	a.Data = timeAry
 	return
 }

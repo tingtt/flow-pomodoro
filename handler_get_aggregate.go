@@ -12,11 +12,11 @@ import (
 )
 
 type GetAggregatedQueryParam struct {
-	AggregationRange   *string `query:"aggregation_range" validate:"omitempty,oneof=hour day week month year"`
+	Start              *string `query:"start" validate:"required,datetime"`
+	End                *string `query:"end" validate:"required,datetime"`
 	ProjectId          *uint64 `query:"project_id" validate:"omitempty"`
 	IncludeSubProjects bool    `query:"include_sub_project" validate:"omitempty"`
-	Start              string  `query:"start" validate:"required,datetime"`
-	End                string  `query:"end" validate:"required,datetime"`
+	AggregationRange   *string `query:"aggregation_range" validate:"omitempty,oneof=hour day week month year"`
 }
 
 func getAggregated(c echo.Context) error {
@@ -38,22 +38,35 @@ func getAggregated(c echo.Context) error {
 
 	// Validate query
 	if err = c.Validate(q); err != nil {
-		// 422: Unprocessable entity
+		// 400: Bad request
 		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
 	}
-	qStart, _ := datetimeStrConv(q.Start)
-	qEnd, _ := datetimeStrConv(q.End)
-	if qStart.After(qEnd) {
-		// 422: Unprocessable entity
-		c.Logger().Debug("`start` must before `end`")
-		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "`start` must before `end`"}, "	")
+	var qStart, qEnd *time.Time
+	if q.Start != nil {
+		startTmp, err := datetimeStrConv(*q.Start)
+		if err != nil {
+			// 400: Bad request
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+		}
+		qStart = &startTmp
 	}
+	if q.End != nil {
+		endTmp, err := datetimeStrConv(*q.End)
+		if err != nil {
+			// 400: Bad request
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+		}
+		qEnd = &endTmp
+	}
+	queryParsed := pomodoro.GetAggregatedQuery{Start: qStart, End: qEnd, ProjectId: q.ProjectId, IncludeSubProjects: q.IncludeSubProjects}
 
 	// Not multiple aggregation
 	if q.AggregationRange == nil {
 		// Get aggregatedPomodoro
-		aggregatedPomodoro, err := pomodoro.GetAggregated(userId, qStart, qEnd, q.ProjectId, q.IncludeSubProjects)
+		aggregatedPomodoro, err := pomodoro.GetAggregated(userId, queryParsed)
 		if err != nil {
 			// 500: Internal server error
 			c.Logger().Debug(err)
@@ -81,13 +94,15 @@ func getAggregated(c echo.Context) error {
 	}
 
 	var end time.Time
-	for start := qStart; start.Before(qEnd); start = end {
+	for start := qStart.UTC(); start.Before(qEnd.UTC()); start = end {
 		end, _ = timeRangeEnd(start, rangeInt)
-		if end.After(qEnd) {
+		if end.After(qEnd.UTC()) {
 			// Trim overdue
-			end = qEnd
+			end = qEnd.UTC()
 		}
-		aggregatedPomodoro, err := pomodoro.GetAggregated(userId, start, end, q.ProjectId, q.IncludeSubProjects)
+		queryParsed.Start = &start
+		queryParsed.End = &end
+		aggregatedPomodoro, err := pomodoro.GetAggregated(userId, queryParsed)
 		if err != nil {
 			// 500: Internal server error
 			c.Logger().Debug(err)

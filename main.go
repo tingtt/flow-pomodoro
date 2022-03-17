@@ -52,18 +52,23 @@ type CustomValidator struct {
 
 func DatetimeStrValidation(fl validator.FieldLevel) bool {
 	_, err1 := time.Parse("2006-1-2T15:4:5", fl.Field().String())
-	_, err2 := strconv.ParseUint(fl.Field().String(), 10, 64)
-	return err1 == nil || err2 == nil
+	_, err2 := time.Parse(time.RFC3339, fl.Field().String())
+	_, err3 := strconv.ParseUint(fl.Field().String(), 10, 64)
+	return err1 == nil || err2 == nil || err3 == nil
 }
 
 func datetimeStrConv(str string) (t time.Time, err error) {
 	// y-m-dTh:m:s or unix timestamp
 	t, err1 := time.Parse("2006-1-2T15:4:5", str)
-	u, err2 := strconv.ParseInt(str, 10, 64)
 	if err1 == nil {
 		return
 	}
+	t, err2 := time.Parse(time.RFC3339, str)
 	if err2 == nil {
+		return
+	}
+	u, err3 := strconv.ParseInt(str, 10, 64)
+	if err3 == nil {
 		t = time.Unix(u, 0)
 		return
 	}

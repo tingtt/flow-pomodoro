@@ -4,17 +4,18 @@ import (
 	"flow-pomodoro/jwt"
 	"flow-pomodoro/pomodoro"
 	"net/http"
+	"time"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
 type GetQueryParam struct {
+	Start              *string `query:"start" validate:"required,datetime"`
+	End                *string `query:"end" validate:"required,datetime"`
 	ProjectId          *uint64 `query:"project_id" validate:"omitempty"`
 	IncludeSubProjects bool    `query:"include_sub_project" validate:"omitempty"`
 	TodoId             *uint64 `query:"todo_id" validate:"omitempty"`
-	Start              string  `query:"start" validate:"required,datetime"`
-	End                string  `query:"end" validate:"required,datetime"`
 }
 
 func get(c echo.Context) error {
@@ -36,38 +37,40 @@ func get(c echo.Context) error {
 
 	// Validate query
 	if err = c.Validate(q); err != nil {
-		// 422: Unprocessable entity
+		// 400: Bad request
 		c.Logger().Debug(err)
-		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
 	}
-	if q.ProjectId != nil && q.TodoId != nil {
-		// 422: Unprocessable entity
-		c.Logger().Debug("`project_id` and `todo_id` cannnot query at the same time")
-		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "`project_id` and `todo_id` cannnot query at the same time"}, "	")
+	var start, end *time.Time
+	if q.Start != nil {
+		startTmp, err := datetimeStrConv(*q.Start)
+		if err != nil {
+			// 400: Bad request
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+		}
+		start = &startTmp
 	}
-	start, _ := datetimeStrConv(q.Start)
-	end, _ := datetimeStrConv(q.End)
-	if start.After(end) {
-		// 422: Unprocessable entity
-		c.Logger().Debug("`start` must before `end`")
-		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": "`start` must before `end`"}, "	")
+	if q.End != nil {
+		endTmp, err := datetimeStrConv(*q.End)
+		if err != nil {
+			// 400: Bad request
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": err.Error()}, "	")
+		}
+		end = &endTmp
 	}
+	queryParsed := pomodoro.GetListQuery{Start: start, End: end, ProjectId: q.ProjectId, IncludeSubProjects: q.IncludeSubProjects, TodoId: q.TodoId}
 
 	// Get pomodoros
-	var pomodoros []pomodoro.Pomodoro
-	if q.ProjectId != nil {
-		pomodoros, err = pomodoro.GetListProjectId(userId, start, end, *q.ProjectId, q.IncludeSubProjects)
-	} else if q.TodoId != nil {
-		pomodoros, err = pomodoro.GetListTodo(userId, start, end, *q.TodoId)
-	} else {
-		pomodoros, err = pomodoro.GetList(userId, start, end)
-	}
+	pomodoros, err := pomodoro.GetList(userId, queryParsed)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 
+	// 200: Success
 	if pomodoros == nil {
 		return c.JSONPretty(http.StatusOK, []interface{}{}, "	")
 	}
