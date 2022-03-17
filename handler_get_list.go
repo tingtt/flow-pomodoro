@@ -18,7 +18,7 @@ type GetQueryParam struct {
 	TodoId             *uint64 `query:"todo_id" validate:"omitempty"`
 }
 
-func get(c echo.Context) error {
+func getList(c echo.Context) error {
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
 	userId, err := jwt.CheckToken(*jwtIssuer, u)
