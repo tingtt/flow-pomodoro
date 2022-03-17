@@ -18,11 +18,11 @@ func GetList(userId uint64, q GetListQuery) (pomodoros []Pomodoro, err error) {
 	queryStr := "SELECT id, start, end, todo_id, project_id, parent_project_id FROM logs WHERE user_id = ?"
 	queryParams := []interface{}{userId}
 	if q.Start != nil {
-		queryStr += " AND (end >= ?)"
+		queryStr += " AND end >= ?"
 		queryParams = append(queryParams, q.Start.UTC())
 	}
 	if q.End != nil {
-		queryStr += " AND (start <= ?)"
+		queryStr += " AND start <= ?"
 		queryParams = append(queryParams, q.End.UTC())
 	}
 	if q.ProjectId != nil {
