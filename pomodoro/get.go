@@ -1,9 +1,7 @@
 package pomodoro
 
 import (
-	"database/sql"
 	"flow-pomodoro/mysql"
-	"time"
 )
 
 func Get(userId uint64, id uint64) (p Pomodoro, notFound bool, err error) {
@@ -24,37 +22,16 @@ func Get(userId uint64, id uint64) (p Pomodoro, notFound bool, err error) {
 		return
 	}
 
-	// TODO: uint64に対応
-	var (
-		start           time.Time
-		end             sql.NullTime
-		todoId          uint64
-		projectId       sql.NullInt64
-		parentProjectId sql.NullInt64
-	)
 	if !rows.Next() {
 		// Not found
 		notFound = true
 		return
 	}
-	err = rows.Scan(&start, &end, &todoId, &projectId, &parentProjectId)
+	err = rows.Scan(&p.Start, &p.End, &p.TodoId, &p.ProjectId, &p.ParentProjectId)
 	if err != nil {
 		return Pomodoro{}, false, err
 	}
 
 	p.Id = id
-	p.Start = start
-	if end.Valid {
-		p.End = &end.Time
-	}
-	if projectId.Valid {
-		projectIdTmp := uint64(projectId.Int64)
-		p.ProjectId = &projectIdTmp
-	}
-	if parentProjectId.Valid {
-		parentProjectIdTmp := uint64(parentProjectId.Int64)
-		p.ParentProjectId = &parentProjectIdTmp
-	}
-
 	return
 }
