@@ -40,10 +40,6 @@ func postEnd(c echo.Context) error {
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// TODO: Check todo id
-
-	// TODO: Check project id
-
 	p, notStarted, invalidTime, err := pomodoro.End(userId, *post)
 	if err != nil {
 		// 500: Internal server error

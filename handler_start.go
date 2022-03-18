@@ -3,6 +3,7 @@ package main
 import (
 	"flow-pomodoro/jwt"
 	"flow-pomodoro/pomodoro"
+	"fmt"
 	"net/http"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
@@ -40,9 +41,33 @@ func postStart(c echo.Context) error {
 		return c.JSONPretty(http.StatusUnprocessableEntity, map[string]string{"message": err.Error()}, "	")
 	}
 
-	// TODO: Check todo id
+	// Check todo id
+	valid, err := checkTodoId(u.Raw, post.TodoId)
+	if err != nil {
+		// 500: Internal server error
+		c.Logger().Debug(err)
+		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+	}
+	if !valid {
+		// 409: Conflit
+		c.Logger().Debug(fmt.Sprintf("project id: %d does not exist", post.TodoId))
+		return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("todo id: %d does not exist", post.TodoId)}, "	")
+	}
 
-	// TODO: Check project id
+	// Check project id
+	if post.ProjectId != nil {
+		valid, err := checkProjectId(u.Raw, *post.ProjectId)
+		if err != nil {
+			// 500: Internal server error
+			c.Logger().Debug(err)
+			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
+		}
+		if !valid {
+			// 409: Conflit
+			c.Logger().Debug(fmt.Sprintf("project id: %d does not exist", *post.ProjectId))
+			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", *post.ProjectId)}, "	")
+		}
+	}
 
 	p, notEnded, invalidTime, err := pomodoro.Start(userId, *post, false)
 	if err != nil {
