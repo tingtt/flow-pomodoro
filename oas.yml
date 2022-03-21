@@ -87,6 +87,7 @@ paths:
         - $ref: "#/components/parameters/project_id"
         - $ref: "#/components/parameters/include_sub_project"
         - $ref: "#/components/parameters/aggregation_range"
+        - $ref: "#/components/parameters/aggregate_sub_project"
       responses:
         200:
           description: Success
@@ -258,3 +259,8 @@ components:
           - week
           - month
           - year
+    aggregate_sub_project:
+      name: aggregate_sub_project
+      in: query
+      schema:
+        type: boolean

@@ -12,11 +12,12 @@ import (
 )
 
 type GetAggregatedQueryParam struct {
-	Start              *string `query:"start" validate:"required,datetime"`
-	End                *string `query:"end" validate:"required,datetime"`
-	ProjectId          *uint64 `query:"project_id" validate:"omitempty"`
-	IncludeSubProjects bool    `query:"include_sub_project" validate:"omitempty"`
-	AggregationRange   *string `query:"aggregation_range" validate:"omitempty,oneof=hour day week month year"`
+	Start                *string `query:"start" validate:"required,datetime"`
+	End                  *string `query:"end" validate:"required,datetime"`
+	ProjectId            *uint64 `query:"project_id" validate:"omitempty"`
+	IncludeSubProjects   bool    `query:"include_sub_project" validate:"omitempty"`
+	AggregationRange     *string `query:"aggregation_range" validate:"omitempty,oneof=hour day week month year"`
+	AggregateSubProjects bool    `query:"aggregate_sub_project" validate:"omitempty"`
 }
 
 func getAggregated(c echo.Context) error {
@@ -61,7 +62,7 @@ func getAggregated(c echo.Context) error {
 		}
 		qEnd = &endTmp
 	}
-	queryParsed := pomodoro.GetAggregatedQuery{Start: qStart, End: qEnd, ProjectId: q.ProjectId, IncludeSubProjects: q.IncludeSubProjects}
+	queryParsed := pomodoro.GetAggregatedQuery{Start: qStart, End: qEnd, ProjectId: q.ProjectId, IncludeSubProjects: q.IncludeSubProjects, AggregateSubProjects: q.AggregateSubProjects}
 
 	// Not multiple aggregation
 	if q.AggregationRange == nil {

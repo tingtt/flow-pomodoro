@@ -13,10 +13,11 @@ type Time struct {
 }
 
 type GetAggregatedQuery struct {
-	Start              *time.Time `query:"start" validate:"required"`
-	End                *time.Time `query:"end" validate:"required"`
-	ProjectId          *uint64    `query:"project_id" validate:"omitempty"`
-	IncludeSubProjects bool       `query:"include_sub_project" validate:"omitempty"`
+	Start                *time.Time `query:"start" validate:"required"`
+	End                  *time.Time `query:"end" validate:"required"`
+	ProjectId            *uint64    `query:"project_id" validate:"omitempty"`
+	IncludeSubProjects   bool       `query:"include_sub_project" validate:"omitempty"`
+	AggregateSubProjects bool       `query:"aggregate_sub_project" validate:"omitempty"`
 }
 
 func GetAggregated(userId uint64, q GetAggregatedQuery) (a AggregatedPomodoro, err error) {
@@ -47,7 +48,11 @@ func GetAggregated(userId uint64, q GetAggregatedQuery) (a AggregatedPomodoro, e
 		}
 
 		if pomo.ProjectId != nil {
-			projects[*pomo.ProjectId] += uint64(pomo.End.Sub(pomo.Start).Seconds())
+			if q.AggregateSubProjects && pomo.ParentProjectId != nil {
+				projects[*pomo.ParentProjectId] += uint64(pomo.End.Sub(pomo.Start).Seconds())
+			} else {
+				projects[*pomo.ProjectId] += uint64(pomo.End.Sub(pomo.Start).Seconds())
+			}
 		} else {
 			othersTime += uint64(pomo.End.Sub(pomo.Start).Seconds())
 		}
