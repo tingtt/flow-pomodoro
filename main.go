@@ -110,6 +110,7 @@ func main() {
 	e.POST("/start", postStart)
 	e.POST("/end", postEnd)
 	e.DELETE(":id", delete)
+	e.DELETE("/", deleteAll)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", *port)))
 }
