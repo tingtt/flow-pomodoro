@@ -12,7 +12,7 @@ type PostStart struct {
 	ParentProjectId *uint64   `query:"parent_project_id" json:"parent_project_id" validate:"omitempty"`
 }
 
-func Start(userId uint64, post PostStart, force bool) (p Pomodoro, notEnded bool, invalidTime bool, err error) {
+func Start(userId uint64, post PostStart, force bool) (p Pomodoro, notEnded bool, err error) {
 	// Check ended
 	old, notFound, err := GetLast(userId)
 	if err != nil {
@@ -36,11 +36,6 @@ func Start(userId uint64, post PostStart, force bool) (p Pomodoro, notEnded bool
 				return
 			}
 		}
-	}
-	if old.End.After(post.Start) {
-		// Last ended time > new start time
-		invalidTime = true
-		return
 	}
 
 	// Insert
