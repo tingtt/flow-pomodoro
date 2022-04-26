@@ -13,14 +13,14 @@ services:
     environment:
       TZ: ${TZ:-UTC}
       PORT: ${PORT:-1323}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-flow-todos}
-      MYSQL_USER: ${MYSQL_USER:-flow-todos}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-flow-pomodoro}
+      MYSQL_USER: ${MYSQL_USER:-flow-pomodoro}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       LOG_LEVEL: ${LOG_LEVEL:-2}
       GZIP_LEVEL: ${GZIP_LEVEL:-6}
       MYSQL_HOST: ${MYSQL_HOST:-db}
       MYSQL_PORT: ${MYSQL_PORT:-3306}
-      JWT_ISSUER: ${JWT_ISSUER:-flow-todos}
+      JWT_ISSUER: ${JWT_ISSUER:-flow-pomodoro}
       JWT_SECRET: ${JWT_SECRET}
       SERVICE_URL_PROJECTS: ${SERVICE_URL_PROJECTS}
       SERVICE_URL_TODOS: ${SERVICE_URL_TODOS}
@@ -43,8 +43,8 @@ services:
       - 3306
     environment:
       TZ: ${TZ:-UTC}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-flow-todos}
-      MYSQL_USER: ${MYSQL_USER:-flow-todos}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-flow-pomodoro}
+      MYSQL_USER: ${MYSQL_USER:-flow-pomodoro}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     restart: unless-stopped
