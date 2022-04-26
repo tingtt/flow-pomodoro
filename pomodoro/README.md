@@ -1,4 +1,4 @@
-# flow-todos
+# flow-pomodoro
 
 ## Usage
 
