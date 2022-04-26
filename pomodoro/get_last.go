@@ -23,6 +23,7 @@ func GetLast(userId uint64) (p Pomodoro, notFound bool, err error) {
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	var (
 		id              uint64
