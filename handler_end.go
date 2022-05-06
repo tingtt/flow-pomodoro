@@ -4,6 +4,7 @@ import (
 	"flow-pomodoro/jwt"
 	"flow-pomodoro/pomodoro"
 	"net/http"
+	"strings"
 
 	jwtGo "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -11,8 +12,7 @@ import (
 
 func postEnd(c echo.Context) error {
 	// Check `Content-Type`
-	if c.Request().Header.Get("Content-Type") != "application/json" &&
-		c.Request().Header.Get("Content-Type") != "application/x-www-form-urlencoded" {
+	if !strings.Contains(c.Request().Header.Get("Content-Type"), "application/json") {
 		// 415: Invalid `Content-Type`
 		return c.JSONPretty(http.StatusUnsupportedMediaType, map[string]string{"message": "unsupported media type"}, "	")
 	}
