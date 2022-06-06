@@ -11,8 +11,8 @@ import (
 )
 
 type GetQueryParam struct {
-	Start              *string `query:"start" validate:"required,datetime"`
-	End                *string `query:"end" validate:"required,datetime"`
+	Start              *string `query:"start" validate:"omitempty,datetime"`
+	End                *string `query:"end" validate:"omitempty,datetime"`
 	ProjectId          *uint64 `query:"project_id" validate:"omitempty"`
 	IncludeSubProjects bool    `query:"include_sub_project" validate:"omitempty"`
 	TodoId             *uint64 `query:"todo_id" validate:"omitempty"`
