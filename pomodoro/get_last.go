@@ -1,9 +1,7 @@
 package pomodoro
 
 import (
-	"database/sql"
 	"flow-pomodoro/mysql"
-	"time"
 )
 
 func GetLast(userId uint64) (p Pomodoro, notFound bool, err error) {
@@ -13,7 +11,7 @@ func GetLast(userId uint64) (p Pomodoro, notFound bool, err error) {
 	}
 	defer db.Close()
 
-	stmtOut, err := db.Prepare("SELECT id, start, end, todo_id, project_id, parent_project_id FROM logs WHERE user_id = ? ORDER BY end IS NULL DESC, start DESC, end DESC LIMIT 1")
+	stmtOut, err := db.Prepare("SELECT id, start, end, remaining_time, todo_id, project_id, parent_project_id FROM logs WHERE user_id = ? ORDER BY end IS NULL DESC, start DESC, end DESC LIMIT 1")
 	if err != nil {
 		return
 	}
@@ -31,7 +29,7 @@ func GetLast(userId uint64) (p Pomodoro, notFound bool, err error) {
 		return
 	}
 	p = Pomodoro{}
-	err = rows.Scan(&p.Id, &p.Start, &p.End, &p.TodoId, &p.ProjectId, &p.ParentProjectId)
+	err = rows.Scan(&p.Id, &p.Start, &p.End, &p.RemainingTime, &p.TodoId, &p.ProjectId, &p.ParentProjectId)
 	if err != nil {
 		return
 	}

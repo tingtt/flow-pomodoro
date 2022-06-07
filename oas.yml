@@ -161,6 +161,9 @@ components:
         end:
           type: string
           format: date-time
+        remaining_time:
+          type: integer
+          example: 300
         todo_id:
           type: integer
         project_id:
@@ -194,6 +197,9 @@ components:
         end:
           type: string
           format: date-time
+        remaining_time:
+          type: integer
+          example: 300
         todo_id:
           type: integer
       required:

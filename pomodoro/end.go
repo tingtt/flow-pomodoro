@@ -6,8 +6,9 @@ import (
 )
 
 type PostEnd struct {
-	End    time.Time `json:"end" validate:"required"`
-	TodoId uint64    `query:"todo_id" json:"todo_id" validate:"required"`
+	End           time.Time `json:"end" validate:"required"`
+	RemainingTime *uint     `json:"remaining_time" validate:"omitempty"`
+	TodoId        uint64    `query:"todo_id" json:"todo_id" validate:"required"`
 }
 
 func End(userId uint64, post PostEnd) (p Pomodoro, notStarted bool, invalidTime bool, err error) {
@@ -32,12 +33,12 @@ func End(userId uint64, post PostEnd) (p Pomodoro, notStarted bool, invalidTime 
 		return
 	}
 	defer db.Close()
-	stmtIns, err := db.Prepare("UPDATE logs SET end  = ? WHERE user_id = ? AND id = ?")
+	stmtIns, err := db.Prepare("UPDATE logs SET end  = ?, remaining_time = ? WHERE user_id = ? AND id = ?")
 	if err != nil {
 		return
 	}
 	defer stmtIns.Close()
-	_, err = stmtIns.Exec(post.End.UTC(), userId, p.Id)
+	_, err = stmtIns.Exec(post.End.UTC(), post.RemainingTime, userId, p.Id)
 	if err != nil {
 		return
 	}

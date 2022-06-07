@@ -15,7 +15,7 @@ type GetListQuery struct {
 
 func GetList(userId uint64, q GetListQuery) (pomodoros []Pomodoro, err error) {
 	// Generate query
-	queryStr := "SELECT id, start, end, todo_id, project_id, parent_project_id FROM logs WHERE user_id = ?"
+	queryStr := "SELECT id, start, end, remaining_time, todo_id, project_id, parent_project_id FROM logs WHERE user_id = ?"
 	queryParams := []interface{}{userId}
 	if q.Start != nil {
 		queryStr += " AND end >= ?"
@@ -60,7 +60,7 @@ func GetList(userId uint64, q GetListQuery) (pomodoros []Pomodoro, err error) {
 
 	for rows.Next() {
 		p := Pomodoro{}
-		err = rows.Scan(&p.Id, &p.Start, &p.End, &p.TodoId, &p.ProjectId, &p.ParentProjectId)
+		err = rows.Scan(&p.Id, &p.Start, &p.End, &p.RemainingTime, &p.TodoId, &p.ProjectId, &p.ParentProjectId)
 		if err != nil {
 			return
 		}
