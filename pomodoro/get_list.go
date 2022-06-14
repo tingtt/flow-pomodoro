@@ -38,7 +38,7 @@ func GetList(userId uint64, q GetListQuery) (pomodoros []Pomodoro, err error) {
 		queryStr += " AND todo_id = ?"
 		queryParams = append(queryParams, q.TodoId)
 	}
-	queryStr += " ORDER BY start, end"
+	queryStr += " ORDER BY start, end IS NULL ASC"
 
 	db, err := mysql.Open()
 	if err != nil {
