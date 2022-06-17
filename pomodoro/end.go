@@ -44,5 +44,6 @@ func End(userId uint64, post PostEnd) (p Pomodoro, notStarted bool, invalidTime 
 	}
 
 	p.End = &post.End
+	p.RemainingTime = post.RemainingTime
 	return
 }
