@@ -101,7 +101,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AggregatedPomodoro"
+                oneOf:
+                  - $ref: "#/components/schemas/AggregatedPomodoro"
+                  - $ref: "#/components/schemas/AggregatedPomodoroWithDatetime"
         400:
           description: Invalid request
         500:
