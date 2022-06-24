@@ -133,7 +133,7 @@ components:
                 type: integer
               project_id:
                 type: integer
-        datetime:
+        base_time:
           type: string
           format: date-time
 
