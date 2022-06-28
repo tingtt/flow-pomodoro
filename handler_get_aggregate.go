@@ -136,7 +136,18 @@ func getAggregated(c echo.Context) error {
 
 				// project_id appeared in column
 				projectIdNotAppearInColumn[*t.ProjectId] = false
+
+				if len(othersTimes) != 0 {
+					// fill by zero to others
+					othersTimes = append(othersTimes, 0)
+				}
 			} else {
+				if len(othersTimes) == 0 {
+					// fill by zero
+					for j := 0; j < i; j++ {
+						othersTimes = append(othersTimes, 0)
+					}
+				}
 				// append time
 				othersTimes = append(othersTimes, t.Time)
 			}
@@ -158,12 +169,14 @@ func getAggregated(c echo.Context) error {
 			},
 		)
 	}
-	aggregatedPomodoros = append(
-		aggregatedPomodoros,
-		AggregatedByProjectAndRangePomodoro{
-			Times: othersTimes,
-		},
-	)
+	if len(othersTimes) != 0 {
+		aggregatedPomodoros = append(
+			aggregatedPomodoros,
+			AggregatedByProjectAndRangePomodoro{
+				Times: othersTimes,
+			},
+		)
+	}
 
 	return c.JSONPretty(http.StatusOK, aggregatedPomodoros, "	")
 }
