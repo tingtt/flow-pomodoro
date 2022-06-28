@@ -20,6 +20,11 @@ type GetAggregatedQueryParam struct {
 	AggregateSubProjects bool    `query:"aggregate_sub_project" validate:"omitempty"`
 }
 
+type AggregatedByProjectAndRangePomodoro struct {
+	Times     []uint64 `json:"times"`
+	ProjectId *uint64  `json:"project_id,omitempty"`
+}
+
 func getAggregated(c echo.Context) error {
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
@@ -73,12 +78,16 @@ func getAggregated(c echo.Context) error {
 			c.Logger().Debug(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
-
-		return c.JSONPretty(http.StatusOK, aggregatedPomodoro, "	")
+		return c.JSONPretty(http.StatusOK, aggregatedPomodoro.Data, "	")
 	}
 
 	// Multiple aggregation
-	var aggregatedPomodoros []pomodoro.AggregatedPomodoro
+	var (
+		aggregatedPomodoros []AggregatedByProjectAndRangePomodoro
+		projects            map[uint64][]uint64 = map[uint64][]uint64{}
+		othersTimes         []uint64
+		appearedProjectIds  map[uint64]bool = map[uint64]bool{}
+	)
 
 	var rangeInt int
 	switch *q.AggregationRange {
@@ -109,8 +118,52 @@ func getAggregated(c echo.Context) error {
 			c.Logger().Debug(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
-		aggregatedPomodoros = append(aggregatedPomodoros, aggregatedPomodoro)
+
+		projectIdNotAppearInColumn := appearedProjectIds
+		for i, t := range aggregatedPomodoro.Data {
+			if t.ProjectId != nil {
+				if !appearedProjectIds[*t.ProjectId] {
+					// fill by zero
+					for j := 0; j < i; j++ {
+						projects[*t.ProjectId] = append(projects[*t.ProjectId], 0)
+					}
+					// project_id appeared
+					appearedProjectIds[*t.ProjectId] = true
+				}
+
+				// append time
+				projects[*t.ProjectId] = append(projects[*t.ProjectId], t.Time)
+
+				// project_id appeared in column
+				projectIdNotAppearInColumn[*t.ProjectId] = false
+			} else {
+				// append time
+				othersTimes = append(othersTimes, t.Time)
+			}
+		}
+		for k, v := range projectIdNotAppearInColumn {
+			if v {
+				// fill by zero to not appeared project_id
+				projects[k] = append(projects[k], 0)
+			}
+		}
 	}
+
+	for i, v := range projects {
+		aggregatedPomodoros = append(
+			aggregatedPomodoros,
+			AggregatedByProjectAndRangePomodoro{
+				Times:     v,
+				ProjectId: &i,
+			},
+		)
+	}
+	aggregatedPomodoros = append(
+		aggregatedPomodoros,
+		AggregatedByProjectAndRangePomodoro{
+			Times: othersTimes,
+		},
+	)
 
 	return c.JSONPretty(http.StatusOK, aggregatedPomodoros, "	")
 }
