@@ -45,13 +45,13 @@ func postStart(c echo.Context) error {
 	valid, err := checkTodoId(u.Raw, post.TodoId)
 	if err != nil {
 		// 500: Internal server error
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if !valid {
 		// 409: Conflit
-		c.Logger().Debug(fmt.Sprintf("project id: %d does not exist", post.TodoId))
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("todo id: %d does not exist", post.TodoId)}, "	")
+		c.Logger().Debugf("project id: %d does not exist", post.TodoId)
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": fmt.Sprintf("todo id: %d does not exist", post.TodoId)}, "	")
 	}
 
 	// Check project id
@@ -59,26 +59,26 @@ func postStart(c echo.Context) error {
 		valid, err := checkProjectId(u.Raw, *post.ProjectId)
 		if err != nil {
 			// 500: Internal server error
-			c.Logger().Debug(err)
+			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		if !valid {
 			// 409: Conflit
-			c.Logger().Debug(fmt.Sprintf("project id: %d does not exist", *post.ProjectId))
-			return c.JSONPretty(http.StatusConflict, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", *post.ProjectId)}, "	")
+			c.Logger().Debugf("project id: %d does not exist", *post.ProjectId)
+			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", *post.ProjectId)}, "	")
 		}
 	}
 
 	p, notEnded, err := pomodoro.Start(userId, *post, false)
 	if err != nil {
 		// 500: Internal server error
-		c.Logger().Debug(err)
+		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if notEnded {
-		// 409: Conflict
+		// 400: Bad request
 		c.Logger().Debug("pomodoro not ended")
-		return c.JSONPretty(http.StatusConflict, map[string]string{"message": "pomodoro not ended"}, "	")
+		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": "pomodoro not ended"}, "	")
 	}
 
 	// 200: Success
