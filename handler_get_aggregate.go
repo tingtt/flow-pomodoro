@@ -120,11 +120,11 @@ func getAggregated(c echo.Context) error {
 		}
 
 		projectIdNotAppearInColumn := appearedProjectIds
-		for i, t := range aggregatedPomodoro.Data {
+		for _, t := range aggregatedPomodoro.Data {
 			if t.ProjectId != nil {
 				if !appearedProjectIds[*t.ProjectId] {
 					// fill by zero
-					for j := 0; j < i; j++ {
+					for j := 0; j < len(othersTimes); j++ {
 						projects[*t.ProjectId] = append(projects[*t.ProjectId], 0)
 					}
 					// project_id appeared
@@ -144,13 +144,16 @@ func getAggregated(c echo.Context) error {
 			} else {
 				if len(othersTimes) == 0 {
 					// fill by zero
-					for j := 0; j < i; j++ {
+					for j := 0; j < len(othersTimes); j++ {
 						othersTimes = append(othersTimes, 0)
 					}
 				}
 				// append time
 				othersTimes = append(othersTimes, t.Time)
 			}
+		}
+		if len(aggregatedPomodoro.Data) == 0 {
+			othersTimes = append(othersTimes, 0)
 		}
 		for k, v := range projectIdNotAppearInColumn {
 			if v {
