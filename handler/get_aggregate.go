@@ -1,6 +1,7 @@
-package main
+package handler
 
 import (
+	"flow-pomodoro/flags"
 	"flow-pomodoro/jwt"
 	"flow-pomodoro/pomodoro"
 	"fmt"
@@ -25,10 +26,10 @@ type AggregatedByProjectAndRangePomodoro struct {
 	ProjectId *uint64  `json:"project_id,omitempty"`
 }
 
-func getAggregated(c echo.Context) error {
+func GetAggregated(c echo.Context) error {
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
-	userId, err := jwt.CheckToken(*jwtIssuer, u)
+	userId, err := jwt.CheckToken(*flags.Get().JwtIssuer, u)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")

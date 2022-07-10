@@ -1,8 +1,10 @@
-package main
+package handler
 
 import (
+	"flow-pomodoro/flags"
 	"flow-pomodoro/jwt"
 	"flow-pomodoro/pomodoro"
+	"flow-pomodoro/utils"
 	"fmt"
 	"net/http"
 	"strings"
@@ -11,7 +13,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func postStart(c echo.Context) error {
+func PostStart(c echo.Context) error {
 	// Check `Content-Type`
 	if !strings.Contains(c.Request().Header.Get("Content-Type"), "application/json") {
 		// 415: Invalid `Content-Type`
@@ -20,7 +22,7 @@ func postStart(c echo.Context) error {
 
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
-	userId, err := jwt.CheckToken(*jwtIssuer, u)
+	userId, err := jwt.CheckToken(*flags.Get().JwtIssuer, u)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")
@@ -42,27 +44,27 @@ func postStart(c echo.Context) error {
 	}
 
 	// Check todo id
-	valid, err := checkTodoId(u.Raw, post.TodoId)
+	status, err := utils.HttpGet(fmt.Sprintf("%s/%d", *flags.Get().ServiceUrlTodos, post.TodoId), &u.Raw)
 	if err != nil {
 		// 500: Internal server error
 		c.Logger().Error(err)
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
-	if !valid {
+	if status != http.StatusOK {
 		// 409: Conflit
-		c.Logger().Debugf("project id: %d does not exist", post.TodoId)
+		c.Logger().Debugf("todo id: %d does not exist", post.TodoId)
 		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": fmt.Sprintf("todo id: %d does not exist", post.TodoId)}, "	")
 	}
 
 	// Check project id
 	if post.ProjectId != nil {
-		valid, err := checkProjectId(u.Raw, *post.ProjectId)
+		status, err := utils.HttpGet(fmt.Sprintf("%s/%d", *flags.Get().ServiceUrlProjects, *post.ProjectId), &u.Raw)
 		if err != nil {
 			// 500: Internal server error
 			c.Logger().Error(err)
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
-		if !valid {
+		if status != http.StatusOK {
 			// 409: Conflit
 			c.Logger().Debugf("project id: %d does not exist", *post.ProjectId)
 			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", *post.ProjectId)}, "	")

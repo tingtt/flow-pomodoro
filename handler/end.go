@@ -1,6 +1,7 @@
-package main
+package handler
 
 import (
+	"flow-pomodoro/flags"
 	"flow-pomodoro/jwt"
 	"flow-pomodoro/pomodoro"
 	"net/http"
@@ -10,7 +11,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func postEnd(c echo.Context) error {
+func PostEnd(c echo.Context) error {
 	// Check `Content-Type`
 	if !strings.Contains(c.Request().Header.Get("Content-Type"), "application/json") {
 		// 415: Invalid `Content-Type`
@@ -19,7 +20,7 @@ func postEnd(c echo.Context) error {
 
 	// Check token
 	u := c.Get("user").(*jwtGo.Token)
-	userId, err := jwt.CheckToken(*jwtIssuer, u)
+	userId, err := jwt.CheckToken(*flags.Get().JwtIssuer, u)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSONPretty(http.StatusUnauthorized, map[string]string{"message": err.Error()}, "	")
