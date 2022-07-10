@@ -51,7 +51,7 @@ func PostStart(c echo.Context) error {
 		return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 	}
 	if status != http.StatusOK {
-		// 409: Conflit
+		// 400: Bad request
 		c.Logger().Debugf("todo id: %d does not exist", post.TodoId)
 		return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": fmt.Sprintf("todo id: %d does not exist", post.TodoId)}, "	")
 	}
@@ -65,7 +65,7 @@ func PostStart(c echo.Context) error {
 			return c.JSONPretty(http.StatusInternalServerError, map[string]string{"message": err.Error()}, "	")
 		}
 		if status != http.StatusOK {
-			// 409: Conflit
+			// 400: Bad request
 			c.Logger().Debugf("project id: %d does not exist", *post.ProjectId)
 			return c.JSONPretty(http.StatusBadRequest, map[string]string{"message": fmt.Sprintf("project id: %d does not exist", *post.ProjectId)}, "	")
 		}
