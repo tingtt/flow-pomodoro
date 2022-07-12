@@ -4,6 +4,7 @@ import (
 	"flow-pomodoro/flags"
 	"flow-pomodoro/handler"
 	"flow-pomodoro/jwt"
+	"flow-pomodoro/mysql"
 	"flow-pomodoro/utils"
 	"fmt"
 	"net/http"
@@ -75,6 +76,22 @@ func main() {
 			return c.Path() == "/-/readiness"
 		},
 	}))
+
+	//
+	// Setup DB
+	//
+
+	// DB client instance
+	e.Logger.Info(mysql.SetDSNTCP(*f.MysqlUser, *f.MysqlPasswd, *f.MysqlHost, int(*f.MysqlPort), *f.MysqlDB))
+
+	// Check connection
+	d, err := mysql.Open()
+	if err != nil {
+		e.Logger.Fatal(err)
+	}
+	if err = d.Ping(); err != nil {
+		e.Logger.Fatal(err)
+	}
 
 	//
 	// Check health of external service
