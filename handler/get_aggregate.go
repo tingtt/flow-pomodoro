@@ -153,7 +153,7 @@ func GetAggregated(c echo.Context) error {
 				othersTimes = append(othersTimes, t.Time)
 			}
 		}
-		if len(aggregatedPomodoro.Data) == 0 {
+		if len(aggregatedPomodoro.Data) == 0 && q.ProjectId == nil {
 			othersTimes = append(othersTimes, 0)
 		}
 		for k, v := range projectIdNotAppearInColumn {
@@ -173,7 +173,7 @@ func GetAggregated(c echo.Context) error {
 			},
 		)
 	}
-	if len(othersTimes) != 0 {
+	if len(othersTimes) != 0 && q.ProjectId == nil {
 		aggregatedPomodoros = append(
 			aggregatedPomodoros,
 			AggregatedByProjectAndRangePomodoro{
